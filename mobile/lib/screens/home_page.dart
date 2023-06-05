@@ -251,15 +251,15 @@ class HomePage extends ConsumerWidget {
                     ),
                     const SizedBox(height: 20.0),
                     SizedBox(
-                      height: 300.0,
+                      height: 250.0,
                       child: BarChart(
                         observations: [
-                          Observation(value: 1000.0, period: 'Jul'),
-                          Observation(value: 1248.4, period: 'Aug'),
-                          Observation(value: 2847.0, period: 'Sep'),
-                          Observation(value: 1495.0, period: 'Oct'),
-                          Observation(value: 1945.0, period: 'Nov'),
-                          Observation(value: 3948.3, period: 'Dec'),
+                          Observation(value: 100000.0, period: 'Jul'),
+                          Observation(value: 124839.4, period: 'Aug'),
+                          Observation(value: 284749.0, period: 'Sep'),
+                          Observation(value: 149523.0, period: 'Oct'),
+                          Observation(value: 194540.0, period: 'Nov'),
+                          Observation(value: 394823.3, period: 'Dec'),
                         ],
                       ),
                     ),
