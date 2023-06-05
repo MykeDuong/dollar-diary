@@ -23,6 +23,7 @@ class _BarChartConsumerState extends ConsumerState<BarChart> {
   late double _upperBound;
   late List<double> _Y;
   late List<String> _X;
+  int _chosenIndex = -1;
 
   void _createUpperBound(double max) {
     int numOfDigits = log10(max).floor();
@@ -47,11 +48,26 @@ class _BarChartConsumerState extends ConsumerState<BarChart> {
     _createUpperBound(max);
   }
 
+  setChosenIndex(int index) {
+    if (index == -1 || index == _chosenIndex) return;
+    setState(() {
+      _chosenIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: ChartPainter(x: _X, y: _Y, max: _upperBound),
-      child: Container(),
+    return GestureDetector(
+      child: CustomPaint(
+        painter: ChartPainter(
+          x: _X,
+          y: _Y,
+          max: _upperBound,
+          chosen: _chosenIndex,
+          onTapCallback: setChosenIndex,
+        ),
+        child: Container(),
+      ),
     );
   }
 }
@@ -63,8 +79,18 @@ class ChartPainter extends CustomPainter {
   final List<String> x;
   final List<double> y;
   final double max;
+  int chosen;
+  final Function(int index) onTapCallback;
 
-  ChartPainter({required this.x, required this.y, required this.max});
+  List<Rect> bars = [];
+
+  ChartPainter({
+    required this.x,
+    required this.y,
+    required this.max,
+    this.chosen = -1,
+    required this.onTapCallback,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -90,8 +116,8 @@ class ChartPainter extends CustomPainter {
     );
 
     y.asMap().forEach((index, value) {
-      _drawBars(canvas, c, value, wd, height, hr);
-      _drawValue(canvas, c, value, hr * value, wd);
+      _drawBars(canvas, c, index, value, wd, height, hr);
+      _drawValue(canvas, c, index, value, hr * value, wd);
       _drawTextXAxis(canvas, c, x[index], hr * value, wd);
       //_drawOutline(canvas, c, wd, height);
       c += Offset(wd, 0);
@@ -114,17 +140,37 @@ class ChartPainter extends CustomPainter {
     );
   }
 
-  void _drawBars(Canvas canvas, Offset c, double value, double width,
+  void _drawBars(Canvas canvas, Offset c, int index, double value, double width,
       double height, double hr) {
     final dp = Offset(
       c.dx,
       c.dy + (height) / 2.0 - value * hr / 2,
     );
-    canvas.drawCircle(dp, 5.0, Paint()..color = Colors.white);
     Rect cornerBar =
         Rect.fromCenter(center: dp, width: width - 20.0, height: value * hr);
+    bars.add(cornerBar);
     RRect bar = RRect.fromRectAndRadius(cornerBar, const Radius.circular(8.0));
-    canvas.drawRRect(bar, Paint()..color = kOverlaySurfaceColor);
+    canvas.drawRRect(
+        bar,
+        Paint()
+          ..color = index == chosen ? kHighlightCyan : kOverlaySurfaceColor);
+  }
+
+  int getTappedBar(Offset offset) {
+    for (int i = 0; i < bars.length; i++) {
+      if (bars[i].contains(offset)) return i;
+    }
+    return -1;
+  }
+
+  @override
+  bool? hitTest(Offset position) {
+    int index = getTappedBar(position);
+    if (index == chosen || index == -1) {
+      return false;
+    } else {
+      onTapCallback(index);
+    }
   }
 
   TextPainter measureText(
@@ -139,9 +185,12 @@ class ChartPainter extends CustomPainter {
     return tp;
   }
 
-  void _drawValue(
-      Canvas canvas, Offset c, double value, double height, double maxWidth) {
-    TextStyle style = const TextStyle(color: kMutedGreyColor, fontSize: 10);
+  void _drawValue(Canvas canvas, Offset c, int index, double value,
+      double height, double maxWidth) {
+    TextStyle style = TextStyle(
+      color: index == chosen ? kHighlightCyan : kClearColor,
+      fontSize: 10,
+    );
     final tp =
         measureText(numberFormat(value, 2), style, maxWidth, TextAlign.center);
     final offset = Offset(
@@ -170,7 +219,7 @@ class ChartPainter extends CustomPainter {
       var str = numberFormat(value, 0);
       final tp = measureText(str, style, yTextWidth, TextAlign.center);
       final offset = Offset(
-        yTextWidth - tp.width,
+        border + yTextWidth - tp.width,
         height - heightValue,
       );
       tp.paint(canvas, offset);
@@ -181,11 +230,12 @@ class ChartPainter extends CustomPainter {
       Canvas canvas, double height, double width, double yTextWidth) {
     Rect yAxis = Rect.fromLTWH(yTextWidth + border, border, 0, height);
     canvas.drawRect(
-        yAxis,
-        Paint()
-          ..color = Colors.white
-          ..strokeWidth = 1
-          ..style = PaintingStyle.stroke);
+      yAxis,
+      Paint()
+        ..color = Colors.white
+        ..strokeWidth = 1
+        ..style = PaintingStyle.stroke,
+    );
 
     Rect xAxis = Rect.fromLTWH(yTextWidth + border, height + border, width, 0);
     canvas.drawRect(

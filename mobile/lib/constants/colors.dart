@@ -14,3 +14,4 @@ const kHighlightPink = Color(0xffEE39FC);
 const kHighlightOrange = Color(0xffFE2827);
 const kPositiveGreen = Color(0xff379237);
 const kNegativeRed = Color(0xffB70404);
+const kClearColor = Color(0x00000000);
