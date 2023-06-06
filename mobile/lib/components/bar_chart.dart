@@ -1,4 +1,5 @@
 import 'package:dollar_diary/constants/colors.dart';
+import 'package:dollar_diary/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:math';
@@ -57,15 +58,16 @@ class _BarChartConsumerState extends ConsumerState<BarChart> {
 
   @override
   Widget build(BuildContext context) {
+    final highlightColor = ref.watch(chosenHighlightColorProvider);
     return GestureDetector(
       child: CustomPaint(
         painter: ChartPainter(
-          x: _X,
-          y: _Y,
-          max: _upperBound,
-          chosen: _chosenIndex,
-          onTapCallback: setChosenIndex,
-        ),
+            x: _X,
+            y: _Y,
+            max: _upperBound,
+            chosen: _chosenIndex,
+            onTapCallback: setChosenIndex,
+            highlightColor: highlightColor),
         child: Container(),
       ),
     );
@@ -79,6 +81,7 @@ class ChartPainter extends CustomPainter {
   final List<String> x;
   final List<double> y;
   final double max;
+  final Color highlightColor;
   int chosen;
   final Function(int index) onTapCallback;
 
@@ -90,6 +93,7 @@ class ChartPainter extends CustomPainter {
     required this.max,
     this.chosen = -1,
     required this.onTapCallback,
+    required this.highlightColor,
   });
 
   @override
@@ -153,7 +157,7 @@ class ChartPainter extends CustomPainter {
     canvas.drawRRect(
         bar,
         Paint()
-          ..color = index == chosen ? kHighlightCyan : kOverlaySurfaceColor);
+          ..color = index == chosen ? highlightColor : kOverlaySurfaceColor);
   }
 
   int getTappedBar(Offset offset) {
@@ -188,7 +192,7 @@ class ChartPainter extends CustomPainter {
   void _drawValue(Canvas canvas, Offset c, int index, double value,
       double height, double maxWidth) {
     TextStyle style = TextStyle(
-      color: index == chosen ? kHighlightCyan : kClearColor,
+      color: index == chosen ? highlightColor : kClearColor,
       fontSize: 10,
     );
     final tp =
