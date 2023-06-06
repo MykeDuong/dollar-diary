@@ -20,11 +20,15 @@ class BarChart extends ConsumerStatefulWidget {
   ConsumerState<BarChart> createState() => _BarChartConsumerState();
 }
 
-class _BarChartConsumerState extends ConsumerState<BarChart> {
+class _BarChartConsumerState extends ConsumerState<BarChart>
+    with SingleTickerProviderStateMixin {
   late double _upperBound;
   late List<double> _Y;
   late List<String> _X;
   int _chosenIndex = -1;
+  late Animation<double> _animation;
+  late AnimationController controller;
+  double growthRatio = 0;
 
   void _createUpperBound(double max) {
     int numOfDigits = log10(max).floor();
@@ -37,9 +41,21 @@ class _BarChartConsumerState extends ConsumerState<BarChart> {
     });
   }
 
+  setChosenIndex(int index) {
+    if (index == -1 || index == _chosenIndex) return;
+    setState(() {
+      _chosenIndex = index;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    controller =
+        AnimationController(duration: Duration(milliseconds: 100), vsync: this);
+
+    controller.forward();
+
     var max = -double.maxFinite;
     widget.observations.forEach((o) {
       max = max < o.value ? o.value : max;
@@ -49,28 +65,36 @@ class _BarChartConsumerState extends ConsumerState<BarChart> {
     _createUpperBound(max);
   }
 
-  setChosenIndex(int index) {
-    if (index == -1 || index == _chosenIndex) return;
-    setState(() {
-      _chosenIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final highlightColor = ref.watch(chosenHighlightColorProvider);
+    _animation = Tween(begin: 0.0, end: 1.0).animate(controller)
+      ..addListener(() {
+        setState(() {
+          growthRatio = _animation.value;
+        });
+      });
+
     return GestureDetector(
       child: CustomPaint(
         painter: ChartPainter(
-            x: _X,
-            y: _Y,
-            max: _upperBound,
-            chosen: _chosenIndex,
-            onTapCallback: setChosenIndex,
-            highlightColor: highlightColor),
+          x: _X,
+          y: _Y,
+          max: _upperBound,
+          chosen: _chosenIndex,
+          onTapCallback: setChosenIndex,
+          highlightColor: highlightColor,
+          growthRatio: growthRatio,
+        ),
         child: Container(),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 }
 
@@ -84,6 +108,7 @@ class ChartPainter extends CustomPainter {
   final Color highlightColor;
   int chosen;
   final Function(int index) onTapCallback;
+  final growthRatio;
 
   List<Rect> bars = [];
 
@@ -94,6 +119,7 @@ class ChartPainter extends CustomPainter {
     this.chosen = -1,
     required this.onTapCallback,
     required this.highlightColor,
+    this.growthRatio = 0.0,
   });
 
   @override
@@ -150,14 +176,17 @@ class ChartPainter extends CustomPainter {
       c.dx,
       c.dy + (height) / 2.0 - value * hr / 2,
     );
-    Rect cornerBar =
-        Rect.fromCenter(center: dp, width: width - 20.0, height: value * hr);
+    Rect cornerBar = Rect.fromCenter(
+      center: dp,
+      width: width - 20.0,
+      height: value * hr * growthRatio,
+    );
     bars.add(cornerBar);
     RRect bar = RRect.fromRectAndRadius(cornerBar, const Radius.circular(8.0));
     canvas.drawRRect(
-        bar,
-        Paint()
-          ..color = index == chosen ? highlightColor : kOverlaySurfaceColor);
+      bar,
+      Paint()..color = index == chosen ? highlightColor : kOverlaySurfaceColor,
+    );
   }
 
   int getTappedBar(Offset offset) {
