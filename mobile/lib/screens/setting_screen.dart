@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SettingScreen extends StatelessWidget {
-  static const kSettingPageId = 'settingPageId';
+  static const id = 'settingPageId';
 
   const SettingScreen({Key? key}) : super(key: key);
 

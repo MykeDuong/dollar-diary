@@ -3,7 +3,12 @@ import 'package:flutter/material.dart';
 
 class SurfaceCard extends StatelessWidget {
   final Widget? child;
-  const SurfaceCard({super.key, this.child = null});
+  final EdgeInsets padding;
+  const SurfaceCard({
+    super.key,
+    this.child = null,
+    this.padding = const EdgeInsets.all(16.0),
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +19,7 @@ class SurfaceCard extends StatelessWidget {
           Radius.circular(16.0),
         ),
       ),
-      padding: const EdgeInsets.all(16.0),
+      padding: padding,
       child: child,
     );
   }

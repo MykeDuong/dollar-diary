@@ -99,7 +99,7 @@ class _BarChartConsumerState extends ConsumerState<BarChart>
 }
 
 class ChartPainter extends CustomPainter {
-  static const double border = 10.0;
+  static const double border = 5.0;
   static const double yTextWidth = 40.0;
 
   final List<String> x;
@@ -125,14 +125,12 @@ class ChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
-    canvas.drawPaint(Paint()..color = const Color(0x00000000));
     final drawableHeight = size.height - border * 2.0;
     final drawableWidth = size.width - border * 2.0;
     final wd = (drawableWidth - yTextWidth) / x.length.toDouble();
-    final height = drawableHeight / 5.0 * 4.0;
+    final height = drawableHeight * 0.9;
     final width = drawableWidth;
     if (height <= 0 || width <= 0) return;
-    if (max < 1.0e-1) return;
 
     final hr = height / max;
 
@@ -148,7 +146,7 @@ class ChartPainter extends CustomPainter {
     y.asMap().forEach((index, value) {
       _drawBars(canvas, c, index, value, wd, height, hr);
       _drawValue(canvas, c, index, value, hr * value, wd);
-      _drawTextXAxis(canvas, c, x[index], hr * value, wd);
+      _drawTextXAxis(canvas, c, index, x[index], hr * value, wd);
       //_drawOutline(canvas, c, wd, height);
       c += Offset(wd, 0);
     });
@@ -203,6 +201,7 @@ class ChartPainter extends CustomPainter {
       return false;
     } else {
       onTapCallback(index);
+      return true;
     }
   }
 
@@ -233,9 +232,12 @@ class ChartPainter extends CustomPainter {
     tp.paint(canvas, offset);
   }
 
-  void _drawTextXAxis(
-      Canvas canvas, Offset c, String label, double height, double maxWidth) {
-    TextStyle style = const TextStyle(color: kMutedGreyColor, fontSize: 16);
+  void _drawTextXAxis(Canvas canvas, Offset c, int index, String label,
+      double height, double maxWidth) {
+    TextStyle style = TextStyle(
+      color: index == chosen ? highlightColor : kMutedGreyColor,
+      fontSize: 16,
+    );
     final tp = measureText(label, style, maxWidth, TextAlign.center);
     final offset = Offset(
       c.dx - tp.width / 2.0,
@@ -253,7 +255,7 @@ class ChartPainter extends CustomPainter {
       final tp = measureText(str, style, yTextWidth, TextAlign.center);
       final offset = Offset(
         border + yTextWidth - tp.width,
-        height - heightValue,
+        height - heightValue - 3,
       );
       tp.paint(canvas, offset);
     }
@@ -272,10 +274,11 @@ class ChartPainter extends CustomPainter {
 
     Rect xAxis = Rect.fromLTWH(yTextWidth + border, height + border, width, 0);
     canvas.drawRect(
-        xAxis,
-        Paint()
-          ..color = Colors.white
-          ..strokeWidth = 1
-          ..style = PaintingStyle.stroke);
+      xAxis,
+      Paint()
+        ..color = Colors.white
+        ..strokeWidth = 1
+        ..style = PaintingStyle.stroke,
+    );
   }
 }

@@ -41,10 +41,11 @@ class ChosenComparisonUnit extends _$ChosenComparisonUnit {
     );
   }
 
-  void changeUnit(
-      {required String name,
-      required double value,
-      required String imageAsset}) {
+  void changeUnit({
+    required String name,
+    required double value,
+    required String imageAsset,
+  }) {
     state = ComparisonUnit(name: name, value: value, imageAsset: imageAsset);
   }
 }
@@ -77,10 +78,37 @@ class DollarDiary extends ConsumerWidget {
           enableFeedback: false,
           type: BottomNavigationBarType.fixed,
         ),
+        textButtonTheme: TextButtonThemeData(
+          style: ButtonStyle(
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+            ),
+          ),
+        ),
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent, // <- Here
+        hoverColor: Colors.transparent,
         scaffoldBackgroundColor: kAppSurfaceColor,
+        checkboxTheme: CheckboxThemeData(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+          ),
+          checkColor: MaterialStateProperty.resolveWith((state) {
+            return kMutedSurfaceColor;
+          }),
+          fillColor: MaterialStateProperty.resolveWith((states) {
+            return Colors.white;
+          }),
+        ),
         fontFamily: 'NunitoSans',
         textTheme: const TextTheme(
           bodyMedium: TextStyle(fontVariations: [
+            FontVariation('wdth', 102.0),
+            FontVariation('wght', 400.0)
+          ]),
+          labelLarge: TextStyle(fontVariations: [
             FontVariation('wdth', 102.0),
             FontVariation('wght', 400.0)
           ]),
@@ -88,10 +116,10 @@ class DollarDiary extends ConsumerWidget {
           bodyColor: kCoolGreyColor,
         ),
       ),
-      initialRoute: MainScreen.kMainScreenId,
+      initialRoute: MainScreen.id,
       routes: {
-        MainScreen.kMainScreenId: (context) => const MainScreen(),
-        SettingScreen.kSettingPageId: (context) => const SettingScreen(),
+        MainScreen.id: (context) => const MainScreen(),
+        SettingScreen.id: (context) => const SettingScreen(),
       },
     );
   }
