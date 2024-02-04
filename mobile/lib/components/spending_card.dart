@@ -1,3 +1,4 @@
+import 'package:dollar_diary/components/circle_percentage_chart.dart';
 import 'package:dollar_diary/components/see_more_button.dart';
 import 'package:dollar_diary/components/surface_card.dart';
 import 'package:dollar_diary/components/transaction_category_card.dart';
@@ -51,6 +52,24 @@ class SpendingCard extends ConsumerWidget {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 24.0),
+          SizedBox(
+            height: 200.0,
+            child: CirclePercentageChart(
+              observations: [
+                CirclePercentageChartObservation.create(
+                  value: 1234.3,
+                  label: 'Foods',
+                  assetName: 'assets/images/FoodIcon.svg',
+                ),
+                CirclePercentageChartObservation.create(
+                  value: 3948.2,
+                  label: 'Foods',
+                  assetName: 'assets/images/SpendIcon.svg',
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 24.0),
           TransactionCategoryCard(

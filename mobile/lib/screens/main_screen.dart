@@ -47,15 +47,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         child: PersistentTabView.custom(
           context,
           controller: _controller,
-          itemCount: _widgetOptions
-              .length, // This is required in case of custom style! Pass the number of items for the nav bar.
+          itemCount: _widgetOptions.length,
           screens: _widgetOptions,
           handleAndroidBackButtonPress: true,
           onWillPop: (int) async {
             return true;
           },
           customWidget: CustomNavBarWidget(
-            // Your custom widget goes here
             items: [
               CustomNavBarItem(
                 asset: 'assets/images/HomeIcon.svg',
@@ -77,8 +75,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             selectedIndex: _controller.index,
             onItemSelected: (index) {
               setState(() {
-                _controller.index =
-                    index; // NOTE: THIS IS CRITICAL!! Don't miss it!
+                _controller.index = index;
               });
             },
           ),

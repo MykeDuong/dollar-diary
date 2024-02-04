@@ -51,8 +51,10 @@ class _BarChartConsumerState extends ConsumerState<BarChart>
   @override
   void initState() {
     super.initState();
-    controller =
-        AnimationController(duration: Duration(milliseconds: 100), vsync: this);
+    controller = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
 
     controller.forward();
 

@@ -26,8 +26,11 @@ class ComparisonUnit {
   final double value;
   final String imageAsset;
 
-  const ComparisonUnit(
-      {required this.name, required this.value, required this.imageAsset});
+  const ComparisonUnit({
+    required this.name,
+    required this.value,
+    required this.imageAsset,
+  });
 }
 
 @riverpod
@@ -35,7 +38,7 @@ class ChosenComparisonUnit extends _$ChosenComparisonUnit {
   @override
   ComparisonUnit build() {
     return const ComparisonUnit(
-      name: 'Starbucks drinks',
+      name: 'Starbucks',
       value: 5.0,
       imageAsset: 'assets/images/StarbucksCoffee.png',
     );
